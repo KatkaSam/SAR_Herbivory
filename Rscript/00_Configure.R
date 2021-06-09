@@ -109,3 +109,20 @@ names(pallete_3) <-  c("CHEW", "NR", "PRE", "SUC")
 pallete_4 <-  brewer.pal(7,"Set2")
 names(pallete_4) <-dataset_invertebrates_sum_abund$Treatment %>% 
   unique()
+
+## plot the whiskers and means form the emmeans table first
+plot1<-ggplot(Catex, aes(x=Site, y=Effect, colour=Strata)) + 
+  ylim(0,0.4)+
+  geom_errorbar(aes(ymin=Effect-SE, ymax=Effect+SE), width=0.2,size = 1.5, position=pd) +
+  geom_line(position=pd, size =3) +
+  geom_point(position=pd, size = 3) +
+  expand_limits(y=0) +  
+  ggtitle("Total predation")+
+  theme_classic(base_size = 22) +
+  theme(axis.line=element_line(colour = "black", size = 1, linetype = "solid")) +
+  theme(axis.ticks = element_line(colour = "black", size = 1, linetype = "solid")) +
+  theme(axis.text = element_text(colour = "black")) +
+  colScale +
+  coord_flip()
+plot1
+
