@@ -60,7 +60,7 @@ summary(dataset_herbivory_sum)
 
 write_csv(
   dataset_herbivory_sum,
-  "data/output/dataset_herbivory_sum .csv")
+  "data/output/dataset_herbivory_sum.csv")
 
 
 #----------------------------------------------------------#
@@ -75,54 +75,4 @@ PDF_height <-  6
 
 # get the flat violin geom
 source("https://gist.githubusercontent.com/benmarwick/2a1bb0133ff568cbe28d/raw/fb53bd97121f7f9ce947837ef1a4c65a73bffb3f/geom_flat_violin.R")
-
-# display.brewer.all()
-# Treatment pallete
-pallete_1 <-  brewer.pal(4,"Dark2")
-names(pallete_1) <-  
-  dataset_herbivory_sum$Treatment %>% 
-  unique()
-
-# Treatment pallete 1a
-pallete_1a <-  brewer.pal(4,"Dark2")
-names(pallete_1a) <-  
-  dataset_PredAbund_model$Treatment %>% 
-  unique()
-
-# strata pallete
-pallete_2 <-  brewer.pal(3,"Set2")
-names(pallete_2) <-  
-  dataset_herbivory_sum$Strata %>% 
-  unique()
-
-# strata pallete 2a
-pallete_2a <-  brewer.pal(3,"Set2")
-names(pallete_2a) <-  
-  dataset_abundance_model$Strata %>% 
-  unique()
-
-# Guild pallete
-pallete_3 <-  brewer.pal(4,"Set1")
-names(pallete_3) <-  c("CHEW", "NR", "PRE", "SUC")
-
-# Treatments in insect pallete
-pallete_4 <-  brewer.pal(7,"Set2")
-names(pallete_4) <-dataset_invertebrates_sum_abund$Treatment %>% 
-  unique()
-
-## plot the whiskers and means form the emmeans table first
-plot1<-ggplot(Catex, aes(x=Site, y=Effect, colour=Strata)) + 
-  ylim(0,0.4)+
-  geom_errorbar(aes(ymin=Effect-SE, ymax=Effect+SE), width=0.2,size = 1.5, position=pd) +
-  geom_line(position=pd, size =3) +
-  geom_point(position=pd, size = 3) +
-  expand_limits(y=0) +  
-  ggtitle("Total predation")+
-  theme_classic(base_size = 22) +
-  theme(axis.line=element_line(colour = "black", size = 1, linetype = "solid")) +
-  theme(axis.ticks = element_line(colour = "black", size = 1, linetype = "solid")) +
-  theme(axis.text = element_text(colour = "black")) +
-  colScale +
-  coord_flip()
-plot1
 
