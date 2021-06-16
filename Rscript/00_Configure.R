@@ -25,6 +25,7 @@ renv::restore(lockfile = "data/lock/revn.lock")
 
 # libraries
 library(tidyverse)
+library(tidyr)
 library(ggpubr)
 library(RColorBrewer)
 library(MuMIn)
@@ -35,16 +36,17 @@ library(ggplot2)
 library(dplyr)
 library(see)
 library(qqplotr)
-
+library (randomForest)
+library(betareg)
 #----------------------------------------------------------#
 # 2. Import data -----
 #----------------------------------------------------------#
 
-# 1.1 herbivory data -----
+# 2.1 total herbivory data summarization -----
 dataset_herbivory <-  
   readxl::read_xlsx("data/input/herbivory_raw_final_20210609.xlsx")
 
-# sum herbivory per tree in percentages
+# sum total herbivory per tree in percentages
 dataset_herbivory_sum <-
   dataset_herbivory %>% 
   mutate(
@@ -61,6 +63,31 @@ summary(dataset_herbivory_sum)
 write_csv(
   dataset_herbivory_sum,
   "data/output/dataset_herbivory_sum.csv")
+
+# 2.2 herbivory data summarization per type of herbivory -----
+dataset_long<- gather(dataset_herbivory, herbivory_type, herbivory, sap_min_perc, chew_perc, factor_key=TRUE)
+dataset_long
+
+write_csv(
+  dataset_long,
+  "data/output/dataset_herbivory_long.csv")
+
+dataset_herbtype_sum <-
+  dataset_long %>% 
+  mutate(
+    herbivory) %>%  # recalculate 
+  group_by(species, site, leaf_age, herbivory_type, side, habitat, individual) %>% 
+  summarize(
+    .groups = "keep",
+    #  leaf_area_total = sum(LeafAreaIdeal)/10e3,
+    herbivory_percentage_median = median(herbivory),
+    herbivory_percentage_mean = mean(herbivory)
+  )
+summary(dataset_herbtype_sum)
+
+write_csv(
+  dataset_herbtype_sum,
+  "data/output/dataset_herbtype_sum.csv")
 
 
 #----------------------------------------------------------#
