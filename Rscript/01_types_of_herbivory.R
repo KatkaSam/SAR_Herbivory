@@ -15,7 +15,7 @@
 # 4. Full dataset herbivory explorations  -----
 #----------------------------------------------------------#
 
-# 4.1. per side of leaf and age of the leaf
+# 4.1. per side of leaf and age of the leaf - version control marketa
 (ext_plot_01 <- 
    dataset_herbtype_sum %>% 
    ggplot(
