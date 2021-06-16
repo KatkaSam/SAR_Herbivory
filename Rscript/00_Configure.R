@@ -23,7 +23,7 @@ library(renv)
 # renv::snapshot(lockfile = "data/lock/revn.lock")
 renv::restore(lockfile = "data/lock/revn.lock")
 
-# libraries
+# libraries - control check from marketa
 library(tidyverse)
 library(tidyr)
 library(ggpubr)
