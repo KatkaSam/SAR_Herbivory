@@ -129,8 +129,13 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
     labs(
       x = "Species",
       y = "Leaf area" )+
-    scale_fill_manual(values = c("#42adc7", "#ffb902", "orangered3"))+
-    scale_color_manual(values = c("#42adc7", "#ffb902", "orangered3"))+
+    scale_fill_manual(values = c("#42adc7", "#ffb902", "orangered3"), 
+                      breaks=c('Forest','Thicket','Savanna'),
+                      labels=c('Forest','Thicket','Savanna'))+
+    scale_color_manual(values = c("#42adc7", "#ffb902", "orangered3"),
+                       breaks=c('Forest','Thicket','Savanna'),
+                       labels=c('Forest','Thicket','Savanna'))+
     theme(
       text = element_text(size = text_size),
-      legend.position = "top"))
+      legend.position = "top")) 
+   

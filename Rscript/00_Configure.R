@@ -23,7 +23,7 @@ library(renv)
 # renv::snapshot(lockfile = "data/lock/revn.lock")
 renv::restore(lockfile = "data/lock/revn.lock")
 
-# libraries - control check from Marketa
+# libraries
 library(tidyverse)
 library(tidyr)
 library(ggpubr)
@@ -45,13 +45,14 @@ library(betareg)
 # 2.1 total herbivory data summarization -----
 dataset_herbivory <-  
   readxl::read_xlsx("data/input/herbivory_raw_final_20210609.xlsx")
+summary(dataset_herbivory)
 
 # sum total herbivory per tree in percentages
 dataset_herbivory_sum <-
   dataset_herbivory %>% 
   mutate(
     tot_pct) %>%  # recalculate 
-  group_by(species, site, leaf_age, side, habitat, individual) %>% 
+  group_by(species, site, leaf_age, leaf_area, side, habitat, individual) %>% 
   summarize(
     .groups = "keep",
     #  leaf_area_total = sum(LeafAreaIdeal)/10e3,
