@@ -55,7 +55,6 @@
     text = element_text(size = text_size),
     legend.position = "right"))
 
-
 ggsave(
   "figures/explor_plot_01_leaf_side_age.pdf",
   ext_plot_01,
@@ -66,6 +65,75 @@ ggsave(
 # only old leaves are eaten from both sides, while young leaves are eaten only from upper side
 # it is however very likley the methodological issue, where we did not measure herbivory 
 # on low side of young leaves, I will have to check the scans once again
+
+# here, I am subsetting the data to OLD leaves only and investigating if the type of herbivory differs on
+# on the upper and lower side of these old leaves
+summary(dataset_herbivory_sum)
+newdata<-subset(dataset_herbtype_sum, leaf_age == "old")
+summary(newdata)
+newdata$herbratio <- newdata$herbivory_percentage_mean/100+0.0001
+library(dplyr)
+group_by(newdata, herbivory_type) %>%
+  summarise(
+    count = n(),
+    mean = mean(herbratio, na.rm = TRUE),
+    sd = sd(herbratio, na.rm = TRUE))
+m0<-glmmTMB(herbratio~1, data = newdata, family=beta_family)
+m1<-glmmTMB(herbratio~side, data = newdata, family=beta_family)
+m2<-glmmTMB(herbratio~herbivory_type, data = newdata, family=beta_family)
+m3<-glmmTMB(herbratio~side*herbivory_type, data = newdata, family=beta_family)
+m4<-glmmTMB(herbratio~side+herbivory_type, data = newdata, family=beta_family)
+AICctab(m0,m1,m2,m3, m4)
+summary(m4)
+emmeans1 <-
+  emmeans(
+    m4,
+    pairwise ~ herbivory_type*side,
+    type = "response")
+emmeans1
+plot(emmeans1)
+
+# now, I had to read the original data again and subset them to upper side only and investigate
+# if the herbivory differs between ond and young leaves and types of herbivory
+summary(dataset_herbivory_sum)
+newdata1<-subset(dataset_herbtype_sum, side == "up")
+newdata1$herbratio <- newdata1$herbivory_percentage_mean/100+0.0001
+summary(newdata1)
+group_by(newdata1, herbivory_type, leaf_age) %>%
+  summarise(
+    count = n(),
+    mean = mean(herbratio, na.rm = TRUE),
+    sd = sd(herbratio, na.rm = TRUE))
+m0<-glmmTMB(herbratio~1, data = newdata1, family=beta_family)
+m1<-glmmTMB(herbratio~leaf_age, data = newdata1, family=beta_family)
+m2<-glmmTMB(herbratio~herbivory_type, data = newdata1, family=beta_family)
+m3<-glmmTMB(herbratio~leaf_age*herbivory_type, data = newdata1, family=beta_family)
+m4<-glmmTMB(herbratio~leaf_age+herbivory_type, data = newdata1, family=beta_family)
+AICctab(m0,m1,m2,m3, m4)
+summary(m4)
+emmeans2 <-
+  emmeans(
+    m4,
+    pairwise ~ herbivory_type+leaf_age,
+    type = "response")
+emmeans2
+plot(emmeans2)
+
+
+m2<-lm(herbivory_percentage_mean~leaf_age, data = newdata1)
+anova(m2)
+res.aov1 <- aov(herbivory_percentage_mean~leaf_age, data = newdata1)
+summary(res.aov1)
+plot(res.aov1, 2)
+# the data are far from being normal, so it looks like the anova can't be used
+plot(res.aov1, 1)
+# homogeneity is not met euther so we have to do non=parametrical test
+aov_residuals <- residuals(object = res.aov1)
+shapiro.test(x = aov_residuals)
+# shapiro test is very significant which means that normality of data is violated, so we really have to use non-parametrical test here
+kruskal.test(herbivory_percentage_mean~leaf_age, data = newdata1)
+by(newdata1, newdata1$leaf_age, summary)
+
 
 # 4.2. per habitat and herbivory type
 (ext_plot_02 <- 
@@ -230,3 +298,9 @@ ggsave(
   height = PDF_height,
   units = "in")
 
+summary(dataset_herbtype_sum2)
+group_by(dataset_herbtype_sum2, habitat, herbivory_type) %>%
+  summarise(
+    count = n(),
+    mean = mean(herbratio, na.rm = TRUE),
+    sd = sd(herbratio, na.rm = TRUE))

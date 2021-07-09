@@ -138,4 +138,12 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
     theme(
       text = element_text(size = text_size),
       legend.position = "top")) 
-   
+
+# save pdf
+ggsave(
+  "figures/model_leafarea_subset7.pdf",
+  model_plot_04,
+  width = PDF_width,
+  height = PDF_height,
+  units = "in")
+

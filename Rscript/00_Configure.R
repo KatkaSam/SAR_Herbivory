@@ -38,6 +38,8 @@ library(see)
 library(qqplotr)
 library (randomForest)
 library(betareg)
+library(bbmle)
+library(buildmer)
 #----------------------------------------------------------#
 # 2. Import data -----
 #----------------------------------------------------------#
