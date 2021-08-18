@@ -274,7 +274,12 @@ glm_habherbtype_emmeans$emmeans %>%
         ymax = upper.CL),
       width=0.2,
       position = position_dodge(width = 0.5, preserve = "single"),
-      size=0.5,  color="black") +
+      size=1,  color="black") +
+    
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
     
     geom_point(
       shape = 0,

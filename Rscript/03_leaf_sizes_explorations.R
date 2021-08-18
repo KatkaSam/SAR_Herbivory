@@ -3,8 +3,7 @@
 #
 #                      SAR Herbivory
 #
-#      Effect of habitat on herbivory in full dataset
-# (in full dataset, design is unbalanced, many species occur at 1 site only)
+#             Explorations of the leaf sizes
 #
 #             Katerina Sam  - Heveakore Maraia
 #                         2021
@@ -44,6 +43,11 @@ summary(dataset_herbivory_sum)
       outlier.shape = NA,
       col = "gray30",
       alpha = 0.5) +
+    
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
     
     labs(
       x = "Habitat", 
@@ -93,6 +97,9 @@ glm_habherbtype_emmeans$contrasts %>%
 glm_leafarea_subset_emmeans$emmeans %>% 
   as_tibble() %>% 
   write_csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
+glm_leafarea_subset_emmeans$contrasts %>% 
+  as_tibble() %>% 
+  write_csv("data/output/leafarea_pairwise_habspec_contrasts.csv")
 
 data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
 
@@ -125,6 +132,11 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
       shape = 0,
       size = 3,
       position = position_dodge(width = 0.5), color="black")+
+    
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
     
     labs(
       x = "Species",

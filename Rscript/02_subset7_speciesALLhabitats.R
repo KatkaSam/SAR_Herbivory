@@ -3,7 +3,7 @@
 #
 #                      SAR Herbivory
 #
-#      Effect of habitat in species occuring at all sites
+#      Effect of habitat only on species occuring at all sites
 #
 #             Katerina Sam  - Heveakore Maraia
 #                         2021
@@ -86,6 +86,7 @@ glm_subset7_dd %>%
 
 glm_subset7_select<-
   glmmTMB(herbratio ~ herbivory_type + habitat + species + herbivory_type : habitat + habitat: species + herbivory_type : species + (1|individual), data=herbivorysubset, family = "beta_family")
+summary(glm_subset7_select)
 
 # as the full interactions of the 3 factors is not significant, we have to anlayse the 2 individual interactions of 2 factors separately
 # 6.2.a Calculate emmeans for herbivory_type : habitat
@@ -139,7 +140,12 @@ a_glm_subset7_select_emmeans$emmeans %>%
     
     ylim(0,0.25) +
     
-    annotate("text", x = 2, y=0.23, label = "Subset of 7 species occuring at all habitat types", size = 6) +
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
+    
+    annotate("text", x = 2, y=0.25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
     
     labs(
       x = "Habitat",
@@ -209,7 +215,12 @@ b_glm_subset7_select_emmeans$emmeans %>%
     
     ylim(0,0.25) +
     
-    annotate("text", x = 4, y=0.23, label = "Subset of 7 species occuring at all habitat types", size = 6) +
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
+    
+    annotate("text", x = 4, y=0.25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
     
     labs(
       x = "Plant species",
@@ -217,7 +228,7 @@ b_glm_subset7_select_emmeans$emmeans %>%
     scale_fill_manual(values = c("#42adc7", "#ffb902", "olivedrab4"))+
     scale_color_manual(values = c("#42adc7", "#ffb902", "olivedrab4"))+
     theme(
-      text = element_text(size = text_size),
+      text = element_text(size = 20),
       legend.position = "top"))
 
 # save pdf
