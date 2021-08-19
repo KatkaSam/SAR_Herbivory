@@ -1,6 +1,21 @@
-# 2.1 total herbivory data summarization -----
+#----------------------------------------------------------#
+#
+#
+#                      SAR Herbivory
+#
+#              Total herbivory of each plot
+#
+#             Katerina Sam  - Heveakore Maraia
+#                         2021
+#
+#----------------------------------------------------------
+
+#----------------------------------------------------------#
+# 7.0. Total herbivory data summarization -----
+#----------------------------------------------------------#
+
 dataset_herbivory_div <-  
-  readxl::read_xlsx("data/input/Species_abundances_analyses.xlsx")
+  readxl::read_xlsx("data/input/Total_damage_abundances_20210819.xlsx")
 summary(dataset_herbivory_div)
 sum_herb <- dataset_herbivory_div [-c(7:54)]
 summary(sum_herb)
@@ -8,8 +23,8 @@ summary(sum_herb)
 sum_herb_new <- subset (sum_herb, herb_type == "chewing" |herb_type =="mining")
 summary(sum_herb_new)
 
-
-(exp_plot_03 <- 
+# make an exploratory graph
+(exp_plot_05 <- 
     sum_herb_new %>% 
     ggplot(
       aes(
@@ -40,7 +55,7 @@ summary(sum_herb_new)
       text = element_text(size = text_size),
       legend.position = "right"))
 
-
+# make models and select the best one
 m.0<-glmmTMB(herbivory_cm2 ~ 1, data=sum_herb_new, na.action = "na.fail")
 m.1<-glmmTMB(herbivory_cm2 ~ herb_type , data=sum_herb_new, na.action = "na.fail")
 m.2<-glmmTMB(herbivory_cm2 ~ habitat, data=sum_herb_new, na.action = "na.fail")
@@ -50,6 +65,7 @@ m.full<-glmmTMB(herbivory_cm2 ~ herb_type * habitat, data=sum_herb_new, na.actio
 
 AICctab(m.0, m.2, m.1, m.3,m.4,m.full)
 
+# calculate emmeans and predicted values
 m.full_emmeans <-
   emmeans(
     m.full,
@@ -66,7 +82,8 @@ m.full_emmeans$emmeans %>%
   as_tibble() %>% 
   write_csv("data/output/total_damage_mc2_emmeans.csv")
 
-(model_plot_04 <-
+# draw the predicted values form the model 
+(model_plot_9 <-
     m.full_emmeans$emmeans %>% 
     as_tibble() %>% 
     ggplot(
@@ -79,10 +96,11 @@ m.full_emmeans$emmeans %>%
     geom_point(
       data = sum_herb_new,
       aes(y = herbivory_cm2),
-      alpha = 0.4,
+      alpha = 0.6,
+      size = 3,
       position = position_jitterdodge(
         dodge.width = 0.5,
-        jitter.width = 0.15)) +
+        jitter.width = 0.1)) +
     
     geom_errorbar(
       aes(
@@ -90,11 +108,11 @@ m.full_emmeans$emmeans %>%
         ymax = upper.CL),
       width=0.2,
       position = position_dodge(width = 0.5, preserve = "single"),
-      size=0.5,  color="black") +
+      size=0.7,  color="black") +
     
     geom_point(
       shape = 0,
-      size = 3,
+      size = 4,
       position = position_dodge(width = 0.5), color="black")+
     
     ylim(0,500) +
@@ -115,17 +133,15 @@ m.full_emmeans$emmeans %>%
 
 # save pdf
 ggsave(
-  "figures/model2_herbtype_habitat_subset7.pdf",
-  model_plot_02,
+  "figures/model9_total_damage_per_plot.pdf",
+  model_plot_9,
   width = PDF_width,
   height = PDF_height,
   units = "in")
 
-
-
-
+# plot also the total herbivory without split into types of herbivory
 sum_herb_total <- subset (sum_herb, herb_type == "total")
-(exp_plot_04 <- 
+(exp_plot_06 <- 
     sum_herb_total %>% 
     ggplot(
       aes(
@@ -137,7 +153,7 @@ sum_herb_total <- subset (sum_herb, herb_type == "total")
     geom_point(
       position = position_jitter(width = 0.15),
       alpha = 1,
-      size = 1) +
+      size = 2) +
     
     geom_boxplot(
       width=0.2,
@@ -161,5 +177,6 @@ sum_herb_total <- subset (sum_herb, herb_type == "total")
     theme(
       text = element_text(size = text_size),
       legend.position = "top"))
-
+# this exploratory graph will be used as part b of the model graph, 
+#thus it needs to be exported manually as narrow picture
 

@@ -11,10 +11,9 @@
 #----------------------------------------------------------#
 
 #----------------------------------------------------------#
-# 6. subset the full data for the species occuring at all 3 habitat types only
+# 2.0. subset the full data for the species occuring at all 3 habitat types only ----
 #----------------------------------------------------------#
-
-# 6.1. Explore the data and subset them before that
+# Explore the data and subset them before that
 unique(dataset_herbtype_sum2$species)   
 herbivorysubset <- subset(dataset_herbtype_sum2, species =='ACA_ROB'| species == 'EUC_RAC'| species == 'GYM_HAR'| species == 'SCU_MYR'|species == 'SID_INE'| species == 'SPI_AFR'|species == 'KRA_FLO')
 unique(herbivorysubset$species)                
@@ -69,7 +68,10 @@ ggsave(
   height = PDF_height,
   units = "in")
 
-# 6.2. Make the full model including all possible options for the subset of the data for 7 species
+#----------------------------------------------------------#
+# 2.1. Make a model  ----
+#----------------------------------------------------------#
+# Make the full model including all possible options for the subset of the data for 7 species
 glm_herbtype_subset7<-glmmTMB(herbratio ~ herbivory_type * habitat * species + (1|individual), data=herbivorysubset, family = "beta_family", na.action = "na.fail")
 summary(glm_herbtype_subset7)
 
@@ -89,7 +91,10 @@ glm_subset7_select<-
 summary(glm_subset7_select)
 
 # as the full interactions of the 3 factors is not significant, we have to anlayse the 2 individual interactions of 2 factors separately
-# 6.2.a Calculate emmeans for herbivory_type : habitat
+
+#----------------------------------------------------------#
+# 2.2.a Calculate emmeans for herbivory_type : habitat ----
+#----------------------------------------------------------#
 a_glm_subset7_select_emmeans <-
   emmeans(
     glm_subset7_select,
@@ -164,7 +169,9 @@ ggsave(
   height = PDF_height,
   units = "in")
 
-# 6.2.b  Calculate emmeans for habitat:species
+#----------------------------------------------------------#
+# 2.2.b  Calculate emmeans for habitat:species ----
+#----------------------------------------------------------#
 b_glm_subset7_select_emmeans <-
   emmeans(
     glm_subset7_select,
@@ -180,7 +187,6 @@ b_glm_subset7_select_emmeans$contrasts %>%
 b_glm_subset7_select_emmeans$emmeans %>% 
   as_tibble() %>% 
   write_csv("data/output/b_subset7_pairwise_habspec_emmeans.csv")
-
 
 (model_plot_03 <-
     b_glm_subset7_select_emmeans$emmeans %>% 
@@ -239,4 +245,6 @@ ggsave(
   height = PDF_height,
   units = "in")
 
-# 6.2.a Calculate emmeans for herbivory_type : species (Kore, try to do this one by yourself)
+#----------------------------------------------------------#
+# 2.2.c  Calculate emmeans for herbivory_type : species (Kore, try to do this one by yourself)
+#----------------------------------------------------------#

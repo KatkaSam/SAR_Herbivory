@@ -1,69 +1,59 @@
-#-----------------------------------------------------------------------------------------------
+#----------------------------------------------------------#
+#
+#
+#                      SAR Herbivory
+#
+#             Explorations of the leaf sizes
+#
+#             Katerina Sam  - Heveakore Maraia
+#                         2021
+#
+#----------------------------------------------------------#
 
-#                                   KEnvironment for SAVANNA (Script)
 
-#------------------------------------------------------------------------------------------------
-#                               Kore and Katka - Africa Data
-#------------------------------------------------------------------------------------------------
-# Packages used in this analyses
+#----------------------------------------------------------#
+# 5.0. Importing of dataframe for savannas only ----
+#----------------------------------------------------------#
+savanna <- read.csv ("data/input/Environment_savanna_20210819.csv")
 
 
-library(tidyverse)
-library(ggplot2)
-library(reshape2)
-library(bbmle)
-
-#------------
-# Importing of dataframe
-#------------
-
-savanna <- read.csv ("data/input/KEnvironment_savanna_09JUL2021.csv")
-
-#----------
-# Subsetting of dataframe (KEnvronment_savanna_09JUL2021)
-#----------
-
+# Subsetting of dataframe 
 savanna <- savanna[-c(1:2, 7:17, 20)]
 str(savanna)
 summary(savanna)
 
-#----------
 # Convert factor variables to numeric variable if there are in the dataset (savanna)
-#----------
-
 savanna$X10yr_fire <- as.numeric(savanna$X10yr_fire)
 savanna$X20yr_fire <- as.numeric(savanna$X20yr_fire)
 
-#---------------------------------------------------
+
 # To convert a wide to long (data condensation) dataset, the package 'reshape2' will be used which I already extracted from the library from
 # the previous line above. The package contained a 'melt function' to convert wide to long columns.
-
 savanna <- melt(savanna, id.vars = c("X10yr_fire", "X20yr_fire", "elevation", "Avg_Rain"))
 
 # Once the melt () is used, with the names in the brackets, these names will be kept as they are but the names which are not included will be
 # joined together and converted to long format in the column.
 
-#---------------------------------------------------
-
-#    To renaming of columns
+#    The renaming of columns
 colnames(savanna)= c("X10yr_fire", "X20yr_fire", "elevation", "Avg_Rain", "Herb_type", "Herbivory")
 summary(savanna)
 
-#---------------------------------------------------
+
 # To test models, we need to extract the bbmle package from the library(bblme). Maximum Likelihood Estimate is used for probability estimation for
 # best fit models.
-
 # but first, decide whether 20 or 10 year regime is better predictor
 m.a <- lm(Herbivory~Herb_type+X10yr_fire, data = savanna)
 m.b <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
 AICctab(m.a, m.b)
 # based on the result, 20-year regime is way better predictor
 
-library(bbmle)
+#----------------------------------------------------------#
+# 5.1. Make the models and select the best/reasonable one -----
+#----------------------------------------------------------#
 m1 <- lm(Herbivory~Herb_type, data = savanna)
 summary(m1)
-m2 <- lm(Herbivory~Herb_type+X10yr_fire, data = savanna)
-m2.int <- lm(Herbivory~Herb_type:10yr_fire, data = savanna)
+m2 <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
+m2.int <- lm(Herbivory~Herb_type:X20yr_fire, data = savanna)
 summary(m2)
 m3 <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
 m3.int <- lm(Herbivory~Herb_type:X20yr_fire, data = savanna)
@@ -103,16 +93,13 @@ summary(m14)
 m15 <- lm(Herbivory~Avg_Rain, data = savanna)
 summary(m15)
 
-
 # The best models here are, m1, m2, m3, m4 in the order of sig. p_value
 # KATKA's note: we do not compare the models based on th p values as they have different factors involved, thus complexity
 #  which needs to be weighted. THerefore, the best models are selected based on AIC (akaike like criterion)
-#----------------------------------------------------------------------------------------------------
 AICctab(m1, m2, m2.int, m3, m3.int, m3.int.elev, m4,m4.int, m5, m5.int, m6, m7, m7.int, m8, m8.int, 
         m9, m9.int, m10, m11, m11.int, m12, m12.int, m13, m14, m14.int, m15)
-# based on AIC, the best model is m3
+# based on AIC, the best model is m2.int
 
-library(MuMIn)
 #another approach woudl be to make a full model (to include both 20 and 10 year fire is too much, so try first 10 and then 20 year)
 m.full <- lm(Herbivory ~ Herb_type * poly(elevation, 2) * Avg_Rain * X20yr_fire, data = savanna, na.action = "na.fail")
 m.full_dd <- 
@@ -147,22 +134,31 @@ AICctab(m1, m2, m2.int, m3, m3.int, m3.int.elev, m4,m4.int, m5, m5.int, m6, m7, 
 # look at the values within the factor "elevation"
 savanna$elevation
 savanna$Herb_type
+# TAKE CARE HERE - for some reason, somehow, the savanna$Herb_type shows Herb_type or Herbivory values only,
+# it should be reading levels: chew_perc and sap_min_perc - you  might need to reupload the data aga if this happens
+# I did not work out where it is happening but if I slowly rerun everything again it usually dissapears
 
 theme_set(theme_classic())
 text_size <-  18
 
+#----------------------------------------------------------#
+# 5.2. Make predicted values based on the selected model -----
+#----------------------------------------------------------#
+
 # obtain the values predicted by the models with interaction
+# first prepare the dataframe
 NewDataSavanna3 <- data.frame(elevation = rep(seq.int(1,350), 22),
                               X20yr_fire = rep(seq.int(2,12), 2),
                               Herb_type = rep(c("chew_perc", "sap_min_perc")))
+# now you add anothe column with previsted values for herbivory based on the model
 NewDataSavanna3$herbivory <- predict(m3.int.elev, newdata = NewDataSavanna3, re.form = NA, type = "response")
 
-# subset the data to chewers onlya nd the certain number of fires
+# subset the data to chewers only and the certain number of fires (the number of fires is changes simply for visual reasons)
 NewDataSavanna_chew <-subset (NewDataSavanna3, Herb_type == "chew_perc")
 NewDataSavanna_chew <-subset (NewDataSavanna_chew, X20yr_fire == "2"|X20yr_fire == "5"|X20yr_fire == "9"|X20yr_fire == "12")
 
 # Figure Savanna - correlation plot for chewers
-plot_02a <- ggplot(data = NewDataSavanna_chew, aes(x=elevation, y = herbivory, color = X20yr_fire))+
+model_plot_07a <- ggplot(data = NewDataSavanna_chew, aes(x=elevation, y = herbivory, color = X20yr_fire))+
   geom_point(alpha = 0.5, pch = 16, size = 4,
              position = position_jitterdodge(
                dodge.width = 0.1,
@@ -178,7 +174,7 @@ plot_02a <- ggplot(data = NewDataSavanna_chew, aes(x=elevation, y = herbivory, c
     legend.position = "top") +
   theme(axis.line = element_line(colour = "black", size = 1.2, linetype = "solid")) +
   theme(axis.ticks = element_line(colour = "black", size = 1.2, linetype = "solid"))
-plot_02a 
+model_plot_07a 
 
 # subset the original data to mienrs only and then select the specific fire regimes
 NewDataSavanna_min <-subset (NewDataSavanna3, Herb_type == "sap_min_perc")
@@ -186,8 +182,8 @@ NewDataSavanna_min <-subset (NewDataSavanna_min, X20yr_fire == "2"|X20yr_fire ==
 summary(NewDataSavanna_min)
 
 
-# Figure Savanna - plot the interaction for the fire, elevationa and miners only
-plot_02b <- ggplot(data = NewDataSavanna_min, aes(x=elevation, y = herbivory, color = X20yr_fire))+
+# Figure Savanna - plot the interaction for the fire, elevation and miners only
+model_plot_07b <- ggplot(data = NewDataSavanna_min, aes(x=elevation, y = herbivory, color = X20yr_fire))+
   geom_point(alpha = 0.5, pch = 16, size = 3,
              position = position_jitterdodge(
                dodge.width = 0,
@@ -204,11 +200,19 @@ plot_02b <- ggplot(data = NewDataSavanna_min, aes(x=elevation, y = herbivory, co
   scale_colour_gradient(low="darkgreen",high="darkolivegreen2") +
   theme(axis.line = element_line(colour = "black", size = 1.2, linetype = "solid")) +
   theme(axis.ticks = element_line(colour = "black", size = 1.2, linetype = "solid"))
-plot_02b 
+model_plot_07b 
 
 # combine both final graphs into 1 picture
 require(gridExtra)
-grid.arrange(plot_02a, plot_02b , ncol=2)
+model_7<-grid.arrange(model_plot_07a, model_plot_07b , ncol=2)
+
+# save pdf
+ggsave(
+  "figures/model7_savanna_habitat_correlations.pdf",
+  model_7,
+  width = PDF_width,
+  height = PDF_height,
+  units = "in")
 
 
 #------------------------------------------------------------------------------------------------------

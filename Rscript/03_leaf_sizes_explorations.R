@@ -11,14 +11,12 @@
 #----------------------------------------------------------#
 
 #----------------------------------------------------------#
-# 7. Leaf sizes investigations  for all plant species  -----
+# 3.0. Leaf sizes investigations  for all plant species  -----
 #----------------------------------------------------------#
 
-library(lme4)
-library(lmerTest)
 summary(dataset_herbivory_sum)
 
-(ext_plot_01 <- 
+(exp_plot_04 <- 
     dataset_herbivory_sum %>% 
     ggplot(
       aes(
@@ -60,15 +58,23 @@ summary(dataset_herbivory_sum)
       text = element_text(size = text_size),
       legend.position = "right"))
 
+# save pdf
+ggsave(
+  "figures/leaf_area_habita.pdf",
+  exp_plot_04,
+  width = PDF_width,
+  height = PDF_height,
+  units = "in")
+# it will be in supplement
+
 glm_leafarea<-lmer(leaf_area ~ habitat + (1|species), dataset_herbivory_sum)
 anova(glm_leafarea)
 emmeans(glm_leafarea, list(pairwise ~ habitat), adjust = "tukey")
-
+# this analyses were done for text
 
 #----------------------------------------------------------#
-# 8. Leaf sizes investigations  for  the subset of 7 plant species  -----
+# 3.1. Leaf sizes investigations  for  the subset of 7 plant species  -----
 #----------------------------------------------------------#
-
 unique(dataset_herbivory_sum$species)   
 leafareasubset <- subset(dataset_herbivory_sum, species =='ACA_ROB'| species == 'EUC_RAC'| species == 'GYM_HAR'| species == 'SCU_MYR'|species == 'SID_INE'| species == 'SPI_AFR'|species == 'KRA_FLO')
 unique(leafareasubset$species)                
@@ -158,4 +164,4 @@ ggsave(
   width = PDF_width,
   height = PDF_height,
   units = "in")
-
+# this figures will be used in supplement only

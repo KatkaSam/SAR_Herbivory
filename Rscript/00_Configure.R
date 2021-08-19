@@ -11,7 +11,7 @@
 #----------------------------------------------------------#
 
 #----------------------------------------------------------#
-# 1. Load libraries and functions -----
+# 0.1. Load libraries and functions -----
 #----------------------------------------------------------#
 
 # delete existing workspace to start clean
@@ -25,6 +25,7 @@ renv::restore(lockfile = "data/lock/revn.lock")
 
 # libraries
 library(tidyverse)
+library(readr)
 library(tidyr)
 library(ggpubr)
 library(RColorBrewer)
@@ -36,17 +37,24 @@ library(ggplot2)
 library(dplyr)
 library(see)
 library(qqplotr)
-library (randomForest)
+library(randomForest)
 library(betareg)
 library(bbmle)
 library(buildmer)
+library(lme4)
+library(lmerTest)
+library(reshape2)
+library(corrplot)
+library(gridExtra)
+library(MASS)
+
 #----------------------------------------------------------#
-# 2. Import data -----
+# 0.2. Import data -----
 #----------------------------------------------------------#
 
 # 2.1 total herbivory data summarization -----
 dataset_herbivory <-  
-  readxl::read_xlsx("data/input/herbivory_raw_final_20210609.xlsx")
+  readxl::read_xlsx("data/input/Herbivory_raw_final_20210609.xlsx")
 summary(dataset_herbivory)
 
 # sum total herbivory per tree in percentages
@@ -94,7 +102,7 @@ write_csv(
 
 
 #----------------------------------------------------------#
-# 3. graphical properties definition  -----
+# 0.3. graphical properties definition  -----
 #----------------------------------------------------------#
 
 theme_set(theme_classic())

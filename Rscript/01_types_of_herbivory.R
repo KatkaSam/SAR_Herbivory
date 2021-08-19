@@ -12,11 +12,10 @@
 #----------------------------------------------------------#
 
 #----------------------------------------------------------#
-# 4. Full dataset herbivory explorations  -----
+# 1.0. Full dataset herbivory explorations  -----
 #----------------------------------------------------------#
-
-# 4.1. per side of leaf and age of the leaf - version control marketa
-(ext_plot_01 <- 
+# per side of leaf and age of the leaf - version control marketa
+(exp_plot_01 <- 
    dataset_herbtype_sum %>% 
    ggplot(
      aes(
@@ -55,9 +54,10 @@
     text = element_text(size = text_size),
     legend.position = "right"))
 
+# this plot will be used in supplement only
 ggsave(
   "figures/explor_plot_01_leaf_side_age.pdf",
-  ext_plot_01,
+  exp_plot_01,
   width = PDF_width,
   height = PDF_height,
   units = "in")
@@ -134,9 +134,10 @@ shapiro.test(x = aov_residuals)
 kruskal.test(herbivory_percentage_mean~leaf_age, data = newdata1)
 by(newdata1, newdata1$leaf_age, summary)
 
-
-# 4.2. per habitat and herbivory type
-(ext_plot_02 <- 
+#----------------------------------------------------------#
+# 1.1. Per habitat and herbivory type  -----
+#----------------------------------------------------------#
+(exp_plot_02 <- 
     dataset_herbtype_sum %>% 
     ggplot(
       aes(
@@ -178,15 +179,16 @@ by(newdata1, newdata1$leaf_age, summary)
 
 ggsave(
   "figures/explor_plot_02_habitat_herbtype.pdf",
-  ext_plot_02,
+  exp_plot_02,
   width = PDF_width,
   height = PDF_height,
   units = "in")
+# this graph willnot be used at all in the end
 
 #----------------------------------------------------------#
-# 5. Build the model for full dataset   -----
+# 1.2. Build the model for full dataset   -----
 #----------------------------------------------------------#
-# 5.1. build and investigate the model, select the best one
+# build and investigate the model, select the best one
 # as leaf age and side of the leaf show overlap and there is moreoover one cathegory missing
 # we sum the data bit more excluding these factors and make the further work easier
 dataset_herbtype_sum2 <-
@@ -232,7 +234,9 @@ model_performance(glm_herbivory_select)
 check_heteroscedasticity(glm_herbivory_select)
 qplot(residuals(glm_herbivory_select))
 
-# 5.2 Make model plots  -----
+#----------------------------------------------------------#
+# 1.3.  Make model plots   -----
+#----------------------------------------------------------#
 # calculate emmeans hab
 glm_habherbtype_emmeans <-
   emmeans(
@@ -302,6 +306,7 @@ ggsave(
   width = PDF_width,
   height = PDF_height,
   units = "in")
+# this figure will be used in the main text of the manuscript
 
 summary(dataset_herbtype_sum2)
 group_by(dataset_herbtype_sum2, habitat, herbivory_type) %>%
@@ -309,3 +314,4 @@ group_by(dataset_herbtype_sum2, habitat, herbivory_type) %>%
     count = n(),
     mean = mean(herbratio, na.rm = TRUE),
     sd = sd(herbratio, na.rm = TRUE))
+
