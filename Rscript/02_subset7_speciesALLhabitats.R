@@ -20,7 +20,7 @@ unique(herbivorysubset$species)
 
 write_csv(
   herbivorysubset,
-  "data/output/dataset_subset7.csv")
+  "data/output/04_dataset_subset7.csv")
 summary(herbivorysubset)
 
 # just trying to split the herbivory type
@@ -52,17 +52,17 @@ summary(herbivorysubset)
     
     labs(
       x = "Plant species", 
-      y = "Herbivory per individual (prop)") +
-    scale_fill_manual(values = c("#42adc7", "#ffb902", "olivedrab4")) +
+      y = "Proportion of leaf area lost (%)") +
+    scale_fill_manual(values = c("#1b9e77", "#d95f02", "#7570b3")) +
     scale_y_continuous(
-      limits = c(0,0.20)) +
-    scale_color_manual(values = c("#42adc7", "#ffb902", "olivedrab4")) +
+      limits = c(0,0.3)) +
+    scale_color_manual(values = c("#1b9e77", "#d95f02", "#7570b3")) +
     theme(
       text = element_text(size = text_size),
       legend.position = "right"))
 
 ggsave(
-  "figures/explor_plot_03_species_habitat_subset7.pdf",
+  "figures/exp_plot_03_species_habitat_subset7.pdf",
   exp_plot_03,
   width = PDF_width,
   height = PDF_height,
@@ -87,14 +87,14 @@ glm_subset7_dd %>%
   View()
 
 glm_subset7_select<-
-  glmmTMB(herbratio ~ herbivory_type + habitat + species + herbivory_type : habitat + habitat: species + herbivory_type : species + (1|individual), data=herbivorysubset, family = "beta_family")
+  glmmTMB(herbratio ~ herbivory_type + habitat + species + herbivory_type : species + habitat: species + habitat: herbivory_type + (1|individual), data=herbivorysubset, family = "beta_family")
 summary(glm_subset7_select)
-
-# as the full interactions of the 3 factors is not significant, we have to anlayse the 2 individual interactions of 2 factors separately
+# as the full interactions of the 3 factors is not significant, we have to analyse the 2 individual interactions of 2 factors separately
 
 #----------------------------------------------------------#
 # 2.2.a Calculate emmeans for herbivory_type : habitat ----
 #----------------------------------------------------------#
+# BUT BE CAREFUL - THIS INTERACTION IS NOT SIGNIFICANT ANYMORE ACCORDING TO THE NEW DATA
 a_glm_subset7_select_emmeans <-
   emmeans(
     glm_subset7_select,
@@ -106,10 +106,10 @@ a_glm_subset7_select_emmeans
 a_glm_subset7_select_emmeans$contrasts %>% 
   as_tibble() %>% 
   arrange(p.value) %>% 
-  write_csv("data/output/a_subset7_pairwise_habherbtype_contrast.csv")
+  write_csv("data/output/04a_subset7_pairwise_habherbtype_contrast.csv")
 a_glm_subset7_select_emmeans$emmeans %>% 
   as_tibble() %>% 
-  write_csv("data/output/a_subset7_pairwise_habherbtype_emmeans.csv")
+  write_csv("data/output/04a_subset7_pairwise_habherbtype_emmeans.csv")
 
 
 (model_plot_02 <-
@@ -118,22 +118,22 @@ a_glm_subset7_select_emmeans$emmeans %>%
     ggplot(
       aes(
         x = habitat,
-        y = response,
+        y = response*100,
         col = herbivory_type,
         fill = herbivory_type)) +
     
     geom_point(
       data = herbivorysubset,
-      aes(y = herbratio),
-      alpha = 0.4,
+      aes(y = herbratio*100),
+      alpha = 0.4, size=2,
       position = position_jitterdodge(
         dodge.width = 0.5,
         jitter.width = 0.15)) +
     
     geom_errorbar(
       aes(
-        ymin =  lower.CL,
-        ymax = upper.CL),
+        ymin =  lower.CL*100,
+        ymax = upper.CL*100),
       width=0.2,
       position = position_dodge(width = 0.5, preserve = "single"),
       size=0.5,  color="black") +
@@ -143,18 +143,18 @@ a_glm_subset7_select_emmeans$emmeans %>%
       size = 3,
       position = position_dodge(width = 0.5), color="black")+
     
-    ylim(0,0.25) +
+    ylim(0,25) +
     
     theme(axis.text.x=element_text(colour="black")) +
     theme(axis.text.y=element_text(colour="black")) +
     theme(axis.line = element_line(colour = 'black', size = 1)) +
     theme(axis.ticks = element_line(colour = "black", size = 1)) +
     
-    annotate("text", x = 2, y=0.25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
+    annotate("text", x = 2, y=25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
     
     labs(
       x = "Habitat",
-      y = "Mean herbivory damage (prop)" )+
+      y = "Proportion of leaf area lost (%)")+
     scale_fill_manual(values = c("#42adc7", "#ffb902"))+
     scale_color_manual(values = c("#42adc7", "#ffb902"))+
     theme(
@@ -183,33 +183,35 @@ b_glm_subset7_select_emmeans
 b_glm_subset7_select_emmeans$contrasts %>% 
   as_tibble() %>% 
   arrange(p.value) %>% 
-  write_csv("data/output/b_subset7_pairwise_habspec_contrast.csv")
+  write_csv("data/output/04b_subset7_pairwise_habspec_contrast.csv")
 b_glm_subset7_select_emmeans$emmeans %>% 
   as_tibble() %>% 
-  write_csv("data/output/b_subset7_pairwise_habspec_emmeans.csv")
+  write_csv("data/output/04b_subset7_pairwise_habspec_emmeans.csv")
 
+# note that I use the binomial data from the models but I multiply all values by 100
+# so it appears like the damage in cm2 per 100
 (model_plot_03 <-
     b_glm_subset7_select_emmeans$emmeans %>% 
     as_tibble() %>% 
     ggplot(
       aes(
         x = species,
-        y = response,
+        y = response*100,
         col = habitat,
         fill = habitat)) +
     
     geom_point(
       data = herbivorysubset,
-      aes(y = herbratio),
-      alpha = 0.4,
+      aes(y = herbratio*100),
+      alpha = 0.4, size=2,
       position = position_jitterdodge(
         dodge.width = 0.5,
         jitter.width = 0.15)) +
     
     geom_errorbar(
       aes(
-        ymin =  lower.CL,
-        ymax = upper.CL),
+        ymin =  lower.CL*100,
+        ymax = upper.CL*100),
       width=0.2,
       position = position_dodge(width = 0.5, preserve = "single"),
       size=0.5,  color="black") +
@@ -219,20 +221,20 @@ b_glm_subset7_select_emmeans$emmeans %>%
       size = 3,
       position = position_dodge(width = 0.5), color="black")+
     
-    ylim(0,0.25) +
+    ylim(-0.2,25) +
     
     theme(axis.text.x=element_text(colour="black")) +
     theme(axis.text.y=element_text(colour="black")) +
     theme(axis.line = element_line(colour = 'black', size = 1)) +
     theme(axis.ticks = element_line(colour = "black", size = 1)) +
     
-    annotate("text", x = 4, y=0.25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
+    annotate("text", x = 4, y=25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
     
     labs(
       x = "Plant species",
-      y = "Mean herbivory damage (prop)" )+
-    scale_fill_manual(values = c("#42adc7", "#ffb902", "olivedrab4"))+
-    scale_color_manual(values = c("#42adc7", "#ffb902", "olivedrab4"))+
+      y = "Proportion of leaf area lost (%)" )+
+    scale_fill_manual(values = c("#1b9e77", "#d95f02", "#7570b3"))+
+    scale_color_manual(values = c("#1b9e77", "#d95f02", "#7570b3"))+
     theme(
       text = element_text(size = 20),
       legend.position = "top"))
@@ -245,6 +247,81 @@ ggsave(
   height = PDF_height,
   units = "in")
 
+
 #----------------------------------------------------------#
-# 2.2.c  Calculate emmeans for herbivory_type : species (Kore, try to do this one by yourself)
+# 2.2.c  Calculate emmeans for herbivory_type:species ----
 #----------------------------------------------------------#
+c_glm_subset7_select_emmeans <-
+  emmeans(
+    glm_subset7_select,
+    pairwise ~ herbivory_type:species,
+    type = "response")
+c_glm_subset7_select_emmeans
+
+# save the pairwise test 
+c_glm_subset7_select_emmeans$contrasts %>% 
+  as_tibble() %>% 
+  arrange(p.value) %>% 
+  write_csv("data/output/04c_subset7_pairwise_habspec_contrast.csv")
+c_glm_subset7_select_emmeans$emmeans %>% 
+  as_tibble() %>% 
+  write_csv("data/output/04c_subset7_pairwise_habspec_emmeans.csv")
+
+# note that I use the binomial data from the models but I multiply all values by 100
+# so it appears like the damage in cm2 per 100
+(model_plot_04 <-
+    c_glm_subset7_select_emmeans$emmeans %>% 
+    as_tibble() %>% 
+    ggplot(
+      aes(
+        x = species,
+        y = response*100,
+        col = herbivory_type,
+        fill = herbivory_type)) +
+    
+    geom_point(
+      data = herbivorysubset,
+      aes(y = herbratio*100),
+      alpha = 0.4, size=2,
+      position = position_jitterdodge(
+        dodge.width = 0.5,
+        jitter.width = 0.15)) +
+    
+    geom_errorbar(
+      aes(
+        ymin =  lower.CL*100,
+        ymax = upper.CL*100),
+      width=0.2,
+      position = position_dodge(width = 0.5, preserve = "single"),
+      size=0.5,  color="black") +
+    
+    geom_point(
+      shape = 0,
+      size = 3,
+      position = position_dodge(width = 0.5), color="black")+
+    
+    ylim(-0.2,25) +
+    
+    theme(axis.text.x=element_text(colour="black")) +
+    theme(axis.text.y=element_text(colour="black")) +
+    theme(axis.line = element_line(colour = 'black', size = 1)) +
+    theme(axis.ticks = element_line(colour = "black", size = 1)) +
+    
+    annotate("text", x = 4, y=25, label = "Subset of 7 species occuring at all habitat types", size = 6) +
+    
+    labs(
+      x = "Plant species",
+      y = "Proportion of leaf area lost (%)" )+
+    scale_fill_manual(values = c("#42adc7", "#ffb902"))+
+    scale_color_manual(values = c("#42adc7", "#ffb902"))+
+    theme(
+      text = element_text(size = 20),
+      legend.position = "top"))
+
+# save pdf
+ggsave(
+  "figures/model4_spec_herb_type_subset7.pdf",
+  model_plot_04,
+  width = PDF_width,
+  height = PDF_height,
+  units = "in")

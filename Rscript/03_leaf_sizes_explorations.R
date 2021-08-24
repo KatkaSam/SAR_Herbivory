@@ -21,7 +21,7 @@ summary(dataset_herbivory_sum)
     ggplot(
       aes(
         x = habitat,
-        y = leaf_area)) +
+        y =  mean_leaf_area)) +
     
     geom_flat_violin(
       col = "gray30",
@@ -49,10 +49,10 @@ summary(dataset_herbivory_sum)
     
     labs(
       x = "Habitat", 
-      y = "Leaf area (mm)") +
+      y = expression("Leaf area"~(cm^2) )) +
     scale_fill_manual(values = c("#42adc7", "#ffb902")) +
     scale_y_continuous(
-      limits = c(0,100)) +
+      limits = c(0,70)) +
     scale_color_manual(values = c("#42adc7", "#ffb902")) +
     theme(
       text = element_text(size = text_size),
@@ -60,14 +60,14 @@ summary(dataset_herbivory_sum)
 
 # save pdf
 ggsave(
-  "figures/leaf_area_habita.pdf",
+  "figures/exp_plot_04_leaf_area_habitat.pdf",
   exp_plot_04,
   width = PDF_width,
   height = PDF_height,
   units = "in")
 # it will be in supplement
 
-glm_leafarea<-lmer(leaf_area ~ habitat + (1|species), dataset_herbivory_sum)
+glm_leafarea<-lmer(mean_leaf_area ~ habitat + (1|species), dataset_herbivory_sum)
 anova(glm_leafarea)
 emmeans(glm_leafarea, list(pairwise ~ habitat), adjust = "tukey")
 # this analyses were done for text
@@ -81,10 +81,14 @@ unique(leafareasubset$species)
 
 write_csv(
   leafareasubset,
-  "data/output/leafarea_subset7.csv")
+  "data/output/05_leafarea_subset7.csv")
 summary(leafareasubset)
 
-glm_leafarea_subset<-lmer(leaf_area ~ habitat * species + (1|individual), leafareasubset)
+# there is a problem with leaf are of ACA_ROB as it was not considered as a compound leaf,
+# so I had to manually multily the leaf area of leaflets by 92, which is average number of leaflets per leaf
+leafareasubset<-read.csv("data/output/05_leafarea_subset7.csv")
+
+glm_leafarea_subset<-lmer( mean_leaf_area ~ habitat * species + (1|individual), leafareasubset)
 anova(glm_leafarea_subset)
 emmeans(glm_leafarea_subset, list(pairwise ~ habitat * species), adjust = "tukey")
 
@@ -96,18 +100,14 @@ glm_leafarea_subset_emmeans <-
     type = "response", lmerTest.limit = 5922, pbkrtest.limit = 5922) 
 
 # save the pairwise test 
-glm_habherbtype_emmeans$contrasts %>% 
-  as_tibble() %>% 
-  arrange(p.value) %>% 
-  write_csv("data/output/herbivory_pairwise_habherbtype_contrast.csv")
 glm_leafarea_subset_emmeans$emmeans %>% 
   as_tibble() %>% 
-  write_csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
+  write_csv("data/output/05a_leafarea_pairwise_habspec_emmeans.csv")
 glm_leafarea_subset_emmeans$contrasts %>% 
   as_tibble() %>% 
-  write_csv("data/output/leafarea_pairwise_habspec_contrasts.csv")
+  write_csv("data/output/05b_leafarea_pairwise_habspec_contrasts.csv")
 
-data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
+data<-read.csv("data/output/05a_leafarea_pairwise_habspec_emmeans.csv")
 
 (model_plot_04 <-
     data %>% 
@@ -120,7 +120,7 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
     
     geom_point(
       data = leafareasubset,
-      aes(y = leaf_area),
+      aes(y = mean_leaf_area),
       alpha = 0.4,
       position = position_jitterdodge(
         dodge.width = 0.5,
@@ -130,7 +130,7 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
       aes(
         ymin =  lower.CL,
         ymax = upper.CL),
-      width=0.2,
+      width=0.5,
       position = position_dodge(width = 0.5, preserve = "single"),
       size=0.5,  color="black") +
     
@@ -146,20 +146,16 @@ data<-read.csv("data/output/leafarea_pairwise_habspec_emmeans.csv")
     
     labs(
       x = "Species",
-      y = "Leaf area" )+
-    scale_fill_manual(values = c("#42adc7", "#ffb902", "orangered3"), 
-                      breaks=c('Forest','Thicket','Savanna'),
-                      labels=c('Forest','Thicket','Savanna'))+
-    scale_color_manual(values = c("#42adc7", "#ffb902", "orangered3"),
-                       breaks=c('Forest','Thicket','Savanna'),
-                       labels=c('Forest','Thicket','Savanna'))+
+      y = expression("Leaf area"~(cm^2) )) +
+    scale_fill_manual(values = c("#1b9e77", "#d95f02", "#7570b3")) + 
+    scale_color_manual(values = c("#1b9e77", "#d95f02", "#7570b3")) +
     theme(
-      text = element_text(size = text_size),
+      text = element_text(size = 18),
       legend.position = "top")) 
 
 # save pdf
 ggsave(
-  "figures/model_leafarea_subset7.pdf",
+  "figures/model5_leafarea_subset7.pdf",
   model_plot_04,
   width = PDF_width,
   height = PDF_height,

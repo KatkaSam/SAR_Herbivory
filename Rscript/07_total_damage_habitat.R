@@ -77,10 +77,10 @@ m.full_emmeans
 m.full_emmeans$contrasts %>% 
   as_tibble() %>% 
   arrange(p.value) %>% 
-  write_csv("data/output/total_damage_mc2_contrast.csv")
+  write_csv("data/output/11_total_damage_mc2_contrast.csv")
 m.full_emmeans$emmeans %>% 
   as_tibble() %>% 
-  write_csv("data/output/total_damage_mc2_emmeans.csv")
+  write_csv("data/output/11_total_damage_mc2_emmeans.csv")
 
 # draw the predicted values form the model 
 (model_plot_9 <-
@@ -124,9 +124,9 @@ m.full_emmeans$emmeans %>%
     
     labs(
       x = "Habitat",
-      y = "Total herbivory damage per plot" )+
-    scale_fill_manual(values = c("#42adc7", "#ffb902"))+
-    scale_color_manual(values = c("#42adc7", "#ffb902"))+
+      y = expression("Summarized leaf area loss"~(cm^2))) +
+    scale_fill_manual(values = c("#ffb902", "#42adc7"))+
+    scale_color_manual(values = c("#ffb902", "#42adc7"))+
     theme(
       text = element_text(size = text_size),
       legend.position = "top"))

@@ -51,38 +51,47 @@ library(MASS)
 #----------------------------------------------------------#
 # 0.2. Import data -----
 #----------------------------------------------------------#
-
-# 2.1 total herbivory data summarization -----
 dataset_herbivory <-  
   readxl::read_xlsx("data/input/Herbivory_raw_final_20210609.xlsx")
 summary(dataset_herbivory)
 
-# sum total herbivory per tree in percentages
+#----------------------------------------------------------#
+# 0.1 total herbivory data summarization and data preparation -----
+#----------------------------------------------------------#
+# calculate means of leaf area, total herbivory etc per tree individuals
 dataset_herbivory_sum <-
   dataset_herbivory %>% 
   mutate(
     tot_pct) %>%  # recalculate 
-  group_by(species, site, leaf_age, leaf_area, side, habitat, individual) %>% 
+  group_by(species, site, leaf_age, side, habitat, individual) %>% 
   summarize(
     .groups = "keep",
     #  leaf_area_total = sum(LeafAreaIdeal)/10e3,
-    herbivory_percentage_median = median(tot_pct),
-    herbivory_percentage_mean = mean(tot_pct)
+    mean_leaf_area = mean(leaf_area), 
+    mean_total_herbivory = mean(total_herbivory)
   )
 summary(dataset_herbivory_sum)
 
+# standardize the total leaf damage per 100 cm2 so it can be compared between plant species
+dataset_herbivory_sum$total_herbivory_standardized <- (100/dataset_herbivory_sum$mean_leaf_area)*dataset_herbivory_sum$mean_total_herbivory
+
 write_csv(
   dataset_herbivory_sum,
-  "data/output/dataset_herbivory_sum.csv")
+  "data/output/01_dataset_herbivory_sum.csv")
 
-# 2.2 herbivory data summarization per type of herbivory -----
-dataset_long<- gather(dataset_herbivory, herbivory_type, herbivory, sap_min_perc, chew_perc, factor_key=TRUE)
+#----------------------------------------------------------#
+# 0.2 herbivory data summarization per type of herbivory -----
+#----------------------------------------------------------#
+# prepare the long format of the dataset form the raw data
+dataset_long<- gather(dataset_herbivory, herbivory_type, herbivory, sap_miner_herbivory, chew_herbivory, factor_key=TRUE)
 dataset_long
 
+# save the long format of the data
 write_csv(
   dataset_long,
-  "data/output/dataset_herbivory_long.csv")
+  "data/output/01a_dataset_herbivory_long.csv")
 
+# by this, you calculate mean herbivory per plant species in individual sites
 dataset_herbtype_sum <-
   dataset_long %>% 
   mutate(
@@ -91,14 +100,19 @@ dataset_herbtype_sum <-
   summarize(
     .groups = "keep",
     #  leaf_area_total = sum(LeafAreaIdeal)/10e3,
-    herbivory_percentage_median = median(herbivory),
-    herbivory_percentage_mean = mean(herbivory)
-  )
+    mean_herbivory = mean(herbivory),
+    mean_leaf_area = mean(leaf_area) 
+)
 summary(dataset_herbtype_sum)
+
+# standardize the leaf damage per 100 cm2 so it can be compared between plant species and at the same time,
+# it expresses herbivory in % per plant individual (but not per individual leaves)
+dataset_herbtype_sum$herbivory_standardized <- (100/dataset_herbtype_sum$mean_leaf_area)*dataset_herbtype_sum$mean_herbivory
+
 
 write_csv(
   dataset_herbtype_sum,
-  "data/output/dataset_herbtype_sum.csv")
+  "data/output/02_dataset_herbtype_sum.csv")
 
 
 #----------------------------------------------------------#

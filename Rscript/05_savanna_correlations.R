@@ -10,21 +10,53 @@
 #
 #----------------------------------------------------------#
 
-
 #----------------------------------------------------------#
 # 5.0. Importing of dataframe for savannas only ----
 #----------------------------------------------------------#
-savanna <- read.csv ("data/input/Environment_savanna_20210819.csv")
+# Total herbivory data summarization for each of the study sites-----
+dataset_herbivory <-  
+  readxl::read_xlsx("data/input/Herbivory_raw_final_20210609.xlsx")
+summary(dataset_herbivory)
 
+# sum total herbivory per tree in percentages
+dataset_herbivory_savanna <-
+  dataset_herbivory %>% 
+  mutate(
+    tot_pct) %>%  # recalculate 
+  group_by(site) %>% 
+  summarize(
+    .groups = "keep",
+    #  leaf_area_total = sum(LeafAreaIdeal)/10e3,
+    mean_chewing_herbivory= mean(chew_herbivory),
+    mean_mining_herbivory = mean(sap_miner_herbivory),
+    mean_leaf_area = mean(leaf_area))
+summary(dataset_herbivory_savanna)
+
+# the vlaues willbe standardized now, but column names are kept short
+dataset_herbivory_savanna <- dataset_herbivory_savanna %>% mutate(mean_total_herbivory = mean_chewing_herbivory+mean_mining_herbivory)
+dataset_herbivory_savanna$total_herbivory <- (100/dataset_herbivory_savanna$mean_leaf_area)*dataset_herbivory_savanna$mean_total_herbivory
+dataset_herbivory_savanna$chewing_herbivory <- (100/dataset_herbivory_savanna$mean_leaf_area)*dataset_herbivory_savanna$mean_chewing_herbivory
+dataset_herbivory_savanna$mining_herbivory <- (100/dataset_herbivory_savanna$mean_leaf_area)*dataset_herbivory_savanna$mean_mining_herbivory
+summary(dataset_herbivory_savanna)
+
+# write the summarized table
+write_csv(
+  dataset_herbivory_savanna,
+  "data/output/08_dataset_herbivory_savanna.csv")
+# now because it was verz complicated, I too k the values form this table and put them manually to the table with habitat characteristics of the savanna site 
+# and now I have to lead the newlz made table
+savanna <- read.csv ("data/input/Environment_savanna_20210820.csv")
+summary(savanna)
 
 # Subsetting of dataframe 
-savanna <- savanna[-c(1:2, 7:17, 20)]
+savanna <- savanna[-c(1:2, 7:18, 19)]
 str(savanna)
 summary(savanna)
 
 # Convert factor variables to numeric variable if there are in the dataset (savanna)
 savanna$X10yr_fire <- as.numeric(savanna$X10yr_fire)
 savanna$X20yr_fire <- as.numeric(savanna$X20yr_fire)
+savanna$elevation <- as.numeric(savanna$elevation)
 
 
 # To convert a wide to long (data condensation) dataset, the package 'reshape2' will be used which I already extracted from the library from
@@ -50,54 +82,29 @@ AICctab(m.a, m.b)
 #----------------------------------------------------------#
 # 5.1. Make the models and select the best/reasonable one -----
 #----------------------------------------------------------#
+m0 <- lm(Herbivory~1, data = savanna)
 m1 <- lm(Herbivory~Herb_type, data = savanna)
-summary(m1)
-m2 <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
-m2.int <- lm(Herbivory~Herb_type:X20yr_fire, data = savanna)
-summary(m2)
-m3 <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
+m2 <- lm(Herbivory~X20yr_fire, data = savanna)
+m3.add <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
 m3.int <- lm(Herbivory~Herb_type:X20yr_fire, data = savanna)
-# i added this only after I run the dredge function below
 m3.int.elev <- lm(Herbivory~Herb_type:X20yr_fire + poly(elevation, 2), data = savanna)
-summary(m3)
-m4 <- lm(Herbivory~Herb_type+poly(elevation, 2), data = savanna)
+m4.add <- lm(Herbivory~Herb_type+poly(elevation, 2), data = savanna)
 m4.int <- lm(Herbivory~Herb_type:poly(elevation, 2), data = savanna)
-summary(m4)
-m5 <- lm(Herbivory~Herb_type+Avg_Rain, data = savanna)
+m5.add <- lm(Herbivory~Herb_type+Avg_Rain, data = savanna)
 m5.int <- lm(Herbivory~Herb_type:Avg_Rain, data = savanna)
-summary(m5)
-m6 <- lm(Herbivory~X10yr_fire, data = savanna)
-summary(m6)
-m7 <- lm(Herbivory ~ X10yr_fire + X20yr_fire, data = savanna)
-m7.int <- lm(Herbivory ~ X10yr_fire : X20yr_fire, data = savanna)
-summary(m7)
-m8 <- lm(Herbivory ~ X10yr_fire + poly(elevation, 2), data = savanna)
-m8.int <- lm(Herbivory ~ X10yr_fire : poly(elevation, 2), data = savanna)
-summary(m8)
-m9 <- lm(Herbivory ~ X10yr_fire + Avg_Rain, data = savanna)
-m9.int <- lm(Herbivory ~ X10yr_fire : Avg_Rain, data = savanna)
-summary(m9)
-m10 <- lm(Herbivory ~ X20yr_fire, data = savanna)
-summary(m10)
 m11 <- lm(Herbivory ~ X20yr_fire + poly(elevation, 2), data = savanna)
 m11.int <- lm(Herbivory ~ X20yr_fire : poly(elevation, 2), data = savanna)
-summary(m11)
-m12 <- lm(Herbivory ~ X20yr_fire + Avg_Rain, data = savanna)
+m12 <- lm(Herbivory ~ Avg_Rain, data = savanna)
+m12.add <- lm(Herbivory ~ X20yr_fire + Avg_Rain, data = savanna)
 m12.int <- lm(Herbivory ~ X20yr_fire : Avg_Rain, data = savanna)
-summary(m12)
-m13 <- lm(Herbivory ~ poly(elevation, 2), data = savanna)
-summary(m13)
-m14 <- lm(Herbivory ~ poly(elevation, 2) + Avg_Rain, data = savanna)
-m14.int <- lm(Herbivory ~ poly(elevation, 2) : Avg_Rain, data = savanna)
-summary(m14)
-m15 <- lm(Herbivory~Avg_Rain, data = savanna)
-summary(m15)
+m13 <- lm(Herbivory ~ poly(elevation, 2) + X20yr_fire + Herb_type, data = savanna)
+m14 <- lm(Herbivory ~ poly(elevation, 2) + X20yr_fire : Herb_type, data = savanna)
+m15 <- lm(Herbivory ~ poly(elevation, 2) : X20yr_fire + Herb_type, data = savanna)
 
 # The best models here are, m1, m2, m3, m4 in the order of sig. p_value
 # KATKA's note: we do not compare the models based on th p values as they have different factors involved, thus complexity
 #  which needs to be weighted. THerefore, the best models are selected based on AIC (akaike like criterion)
-AICctab(m1, m2, m2.int, m3, m3.int, m3.int.elev, m4,m4.int, m5, m5.int, m6, m7, m7.int, m8, m8.int, 
-        m9, m9.int, m10, m11, m11.int, m12, m12.int, m13, m14, m14.int, m15)
+AICctab(m0, m1, m2, m3.add, m3.int, m3.int.elev, m4.add, m4.int, m5.add, m5.int, m11, m11.int, m12, m12.add, m12.int, m13, m14, m15)
 # based on AIC, the best model is m2.int
 
 #another approach woudl be to make a full model (to include both 20 and 10 year fire is too much, so try first 10 and then 20 year)
@@ -115,11 +122,12 @@ m.full_dd %>%
 # save result table
 m.full_dd %>% 
   as_tibble() %>% 
-  write_csv("data/output/savanna_correlations.csv")
+  write_csv("data/output/09_savanna_correlations.csv")
 
 # based on the results from dredge, you have to make all potential models, i.e. those with dAIC up to 2
 m16 <- lm(Herbivory~ Herb_type + poly(elevation, 2) + Avg_Rain +  X20yr_fire + Avg_Rain:X20yr_fire, data = savanna)
-m3 <- lm(Herbivory~Herb_type+X20yr_fire, data = savanna)
+m16a <- lm(Herbivory~ Herb_type + Avg_Rain:X20yr_fire, data = savanna)
+m16b <- lm(Herbivory~ Herb_type + poly(elevation, 2):X20yr_fire, data = savanna)
 m17 <- lm(Herbivory~Herb_type + poly(elevation, 2) + Avg_Rain +  X20yr_fire,  data = savanna)
 m18 <- lm(Herbivory~Herb_type + poly(elevation, 2) + X20yr_fire,  data = savanna)
 m19 <- lm(Herbivory~Avg_Rain + poly(elevation, 2) + Herb_type, data = savanna)
@@ -128,12 +136,13 @@ AICctab(m16, m17, m18, m3.int.elev, m19, m20)
 # based on this results model including type of herbivory in interaction with fire regime and addive factor of elevatin is the best
 
 # looking once again at all models should give the same result
-AICctab(m1, m2, m2.int, m3, m3.int, m3.int.elev, m4,m4.int, m5, m5.int, m6, m7, m7.int, m8, m8.int, 
-        m9, m9.int, m10, m11, m11.int, m12, m12.int, m13, m14, m14.int, m15, m16, m17, m18, m19,m20)
+AICctab(m0, m1, m2, m3.add, m3.int, m3.int.elev, m4.add, m4.int, m5.add, m5.int, m11, m11.int, m12, m12.add, m12.int, m13, m14, m15,
+        m16, m16a, m16b, m17, m18, m19,m20)
 
 # look at the values within the factor "elevation"
 savanna$elevation
 savanna$Herb_type
+savanna$Avg_Rain
 # TAKE CARE HERE - for some reason, somehow, the savanna$Herb_type shows Herb_type or Herbivory values only,
 # it should be reading levels: chew_perc and sap_min_perc - you  might need to reupload the data aga if this happens
 # I did not work out where it is happening but if I slowly rerun everything again it usually dissapears
@@ -149,12 +158,12 @@ text_size <-  18
 # first prepare the dataframe
 NewDataSavanna3 <- data.frame(elevation = rep(seq.int(1,350), 22),
                               X20yr_fire = rep(seq.int(2,12), 2),
-                              Herb_type = rep(c("chew_perc", "sap_min_perc")))
+                              Herb_type = rep(c("chewing_herbivory", "mining_herbivory")))
 # now you add anothe column with previsted values for herbivory based on the model
 NewDataSavanna3$herbivory <- predict(m3.int.elev, newdata = NewDataSavanna3, re.form = NA, type = "response")
 
 # subset the data to chewers only and the certain number of fires (the number of fires is changes simply for visual reasons)
-NewDataSavanna_chew <-subset (NewDataSavanna3, Herb_type == "chew_perc")
+NewDataSavanna_chew <-subset (NewDataSavanna3, Herb_type == "chewing_herbivory")
 NewDataSavanna_chew <-subset (NewDataSavanna_chew, X20yr_fire == "2"|X20yr_fire == "5"|X20yr_fire == "9"|X20yr_fire == "12")
 
 # Figure Savanna - correlation plot for chewers
@@ -166,8 +175,8 @@ model_plot_07a <- ggplot(data = NewDataSavanna_chew, aes(x=elevation, y = herbiv
   ylim(0,6) +
   xlim(100,350) +
   labs(
-    x = "Elevation",
-    y = expression(paste("Herbivory by chewers"))) +
+    x = "Elevation (m)",
+    y = expression(paste("Proportion of leaf area eaten by chewers (%)"))) +
   theme(
     text = element_text(size = text_size),
     axis.text=element_text(color="black"), 
@@ -177,7 +186,7 @@ model_plot_07a <- ggplot(data = NewDataSavanna_chew, aes(x=elevation, y = herbiv
 model_plot_07a 
 
 # subset the original data to mienrs only and then select the specific fire regimes
-NewDataSavanna_min <-subset (NewDataSavanna3, Herb_type == "sap_min_perc")
+NewDataSavanna_min <-subset (NewDataSavanna3, Herb_type == "mining_herbivory")
 NewDataSavanna_min <-subset (NewDataSavanna_min, X20yr_fire == "2"|X20yr_fire == "5"|X20yr_fire == "9"|X20yr_fire == "12")
 summary(NewDataSavanna_min)
 
@@ -192,7 +201,7 @@ model_plot_07b <- ggplot(data = NewDataSavanna_min, aes(x=elevation, y = herbivo
   xlim(100, 350) +
   labs(
     x = "Elevation (m)",
-    y = expression(paste("Herbivory by miners"))) +
+    y = expression(paste("Proportion of leaf area eaten by miners (%)"))) +
   theme(
     text = element_text(size = text_size),
     axis.text=element_text(color="black"), 
