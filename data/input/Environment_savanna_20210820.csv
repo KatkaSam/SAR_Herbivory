@@ -1,0 +1,25 @@
+our codes,Type,10yr_fire,20yr_fire,elevation,Avg_Rain,SoilType,Basal_area,hlu/imf,UPCOVER,Forest,Savannah,Thicket,bm-TOT,Bro-ung,g-TOT,OCCUP-TOT,site,total_herbivory,chewing_herbivory,mining_herbivory
+S1,Savannah,5,11,220,675,Ecca,NA,hlu,63,0,1,0,1,1,2,3,S1,5.965,3.098,2.867
+S4,Savannah,6,12,116,675,Ecca,NA,hlu,63,0,1,0,0,0,14,14,S4,3.085,1.936,1.149
+S5,Savannah,6,12,220,675,Ecca,NA,hlu,63,0,1,0,0,0,3,3,S5,9.584,9.042,0.542
+S7,Savannah,6,12,331,825,Ecca,NA,imf,5,0,1,0,2,0,25,27,S7,1.312,0.554,0.758
+S8,Savannah,6,12,338,825,Ecca,NA,hlu,63,0,1,0,5,0,7,12,S8,6.645,3.706,2.939
+S9,Savannah,5,11,343,825,Ecca,NA,hlu,5,0,1,0,0,0,14,14,S9,3.359,3.023,0.336
+S10,Savannah,5,12,345,825,Basalt,NA,hlu,63,0,1,0,8,0,19,27,S10,9.76,4.543,5.216
+S11,Savannah,5,11,127,825,Ecca,NA,hlu,63,0,1,0,0,0,2,2,S11,13.754,6.322,7.432
+S13,Savannah,2,7,110,775,Ecca,NA,hlu,63,0,1,0,3,2,8,11,S13,2.931,1.418,1.513
+S19,Savannah,5,10,141,775,Ecca,NA,hlu,63,0,1,0,4,1,3,7,S19,9.32,4.408,4.912
+S20,Savannah,4,9,124,775,Alluvium,NA,hlu,63,0,1,0,2,1,1,3,S20,3.266,1.929,1.337
+S21,Savannah,4,10,137,775,Ecca,NA,hlu,63,0,1,0,4,0,7,11,S21,4.039,2.586,1.453
+S22,Savannah,5,12,145,775,Basalt,NA,hlu,63,0,1,0,2,2,2,4,S22,19.787,13.357,6.43
+S24,Savannah,4,10,198,775,Basalt,NA,hlu,63,0,1,0,0,0,6,6,S24,10.336,6.553,3.783
+S25,Savannah,3,10,185,775,Basalt,NA,hlu,63,0,1,0,0,0,19,19,S25,6.695,5.437,1.258
+S27,Savannah,6,11,157,775,Basalt,NA,hlu,63,0,1,0,2,0,11,13,S27,4.743,3.576,1.167
+S30,Savannah,7,12,151,775,Basalt,NA,hlu,63,0,1,0,0,0,1,1,S30,6.133,4.697,1.436
+S46,Savannah,3,10,244,725,Ecca,NA,imf,16,0,1,0,3,3,3,6,S46,3.459,2.351,1.107
+S49,Savannah,1,6,312,725,Ecca,NA,imf,16,0,1,0,47,47,9,56,S49,2.005,0.832,1.172
+S50,Savannah,1,6,126,725,Basalt,NA,imf,33,0,1,0,3,2,52,55,S50,4.715,4.18,0.535
+S52,Savannah,0,4,120,725,Ecca,NA,imf,83,0,1,0,6,5,7,13,S52,3.362,2.327,1.034
+S53,Savannah,0,3,114,725,Ecca,NA,imf,83,0,1,0,56,56,24,80,S53,1.625,0.668,0.957
+S55,Savannah,1,6,151,725,Basalt,NA,imf,33,0,1,0,11,11,9,20,S55,8.781,5.035,3.746
+S58,Savannah,1,5,132,725,Ecca,NA,imf,33,0,1,0,11,11,15,26,S58,4.636,2.285,2.351
